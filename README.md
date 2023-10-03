@@ -9,7 +9,7 @@
 - [Testing and Validation](#testing-and-validation)
 - [Clean Up](#clean-up)
 
-## Overview
+## Overview 
 Generative AI Agents are capable of producing human-like responses and engaging in natural language conversations by orchestrating a chain of calls to Large Language Models (LLMs) and other augmenting tools based on user input. Instead of only fulfilling pre-defined intents through a static decision tree, Agents are autonomous within the context of their suite of available tools. 
 
 This sample solution creates a Generative AI-powered Financial Services Agent that can assist users with finding their account information, completing a loan application, or answering any natural language question while also sourcing links for the provided answers. [Amazon Lex](https://docs.aws.amazon.com/lexv2/latest/dg/what-is.html) supplies the Natural Language Understanding (NLU) and Natural Language Processing (NLP) interface for the open-source [LangChain Conversational Agent](https://python.langchain.com/docs/modules/agents/agent_types/chat_conversation_agent) within an [AWS Amplify](https://docs.aws.amazon.com/amplify/latest/userguide/welcome.html) website. The Agent is equipped with tools that include an Anthropic Claude LLM hosted on [Amazon Bedrock](https://aws.amazon.com/bedrock/) and synthetic customer data stored on [Amazon DynamoDB](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html) and [Amazon Kendra](https://docs.aws.amazon.com/kendra/latest/dg/what-is-kendra.html).
