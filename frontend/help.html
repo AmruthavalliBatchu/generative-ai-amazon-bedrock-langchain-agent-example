@@ -42,6 +42,10 @@
 		    right: 0;
 		    left: 0;
 		}
+		.align--center {
+			display: block;
+			margin: 0 auto;
+		}
 	</style>
 	<script>
 		document.documentElement.classList.remove( 'no-js' );
@@ -73,16 +77,8 @@
 			<div id="#main" class="l-main-content" role="main">
 				<div class="l-section image">
 					<div class="l-content-container">
-						<img src="./image/car_crash.jpg" width="500px" height="200px"/>
-						<h2 class="a-heading a-heading--2 u-text--center">Aviva has detected a crash. Were you involved in an accident?</h1>
-						<ul class="m-button-group">
-							<li class="m-button-group__item">
-							    <a class="a-button a-button--primary" href="assistance.html">Yes</a>
-							</li>
-							<li class="m-button-group__item">
-								<a class="a-button a-button--secondary" href="">No</a>
-							</li>
-						</ul>
+						<img class="align--center" src="https://static.aviva.io/assets/themes-icons/v2/aviva/default/functional/user-actions/contextual-help-blue.svg" width="200px" height="100px"/>
+						<h2 class="a-heading a-heading--2 u-text--center">An Aviva representative will call you in a moment and provide assistance with what ever you need at this point. Be safe and rest assured.</h1>
 					</div>
 				</div>
 			</div>
