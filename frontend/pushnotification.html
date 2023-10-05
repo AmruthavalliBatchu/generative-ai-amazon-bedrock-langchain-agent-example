@@ -2,7 +2,7 @@
 <html lang="en-GB" class="no-js">
 <head>
 	<title>Check Theme - Rounded Corners</title>
-	<meta name="description" content="" />
+	<meta name="description" content=""/>
 
 	<!-- Viewport for responsive -->
 	<meta name="viewport" content="width=device-width,initial-scale=1.0" />
@@ -32,19 +32,24 @@
 	<meta name="twitter:image" property="og:image" content="[ Social card image ]" />
 
 	<style>
-		.footer-menu {
-			background-image: url("./image/footerMenu.PNG");
-			background-size: contain;
+		.image {
+			background-image: url("./image/HPBU2_AV2.jfif");
 			background-repeat: no-repeat;
-			height: 5em;
-			position: fixed;
-		    bottom: 1.1em;
-		    right: 0;
-		    left: 0;
+			background-size: cover;
+			background-position: center;
+			height: 100vh;
 		}
-		.align--center {
-			display: block;
-			margin: 0 auto;
+		.m-card.m-card-notification.notification {
+		    top: 40%;
+		    position: absolute;
+		    margin-right: 2em;
+		    margin-left: 0.7em;
+		}
+		a.link {
+			border-bottom: 0;
+		}
+		.link:visited {
+			color: #5c596d;
 		}
 	</style>
 	<script>
@@ -63,34 +68,24 @@
 	<meta itemprop="name" content="[ Website name ]" />
 	<meta itemprop="url" content="[ Root website URL ]" />
 	<div class="l-whole-page">
-		<header>
-			<p class="o-masthead-main-content"><a href="#main">Skip to content</a></p>
-			<div class="o-masthead o-masthead--centered u-clear--inner" data-module="o-masthead" data-module-load="true">
-				<div class="l-content-container o-masthead__navigation-container">
-					<div class="o-masthead-logo">
-						<a class="o-masthead-logo__link" href="…" aria-label="Return to home page example"><img class="o-masthead-logo__image" src="https://static.aviva.io/assets/logo/aviva-logo.svg" decoding="async" width="130" height="24" alt="AVIVA" /></a>
-					</div>
-				</div>
-			</div>
-		</header>
 		<div class="l-page-wrapper">
 			<div id="#main" class="l-main-content" role="main">
 				<div class="l-section image">
 					<div class="l-content-container">
-						<img class="align--center" src="https://static.aviva.io/assets/themes-icons/v2/aviva/fusion/product/badge/help-24-7-badge.svg" width="200px" height="100px"/>
-						<h2 class="a-heading a-heading--2 u-text--center">Do you require immediate assistance?</h2>
-						<ul class="m-button-group">
-							<li class="m-button-group__item">
-							    <a class="a-button a-button--primary" href="help.html">Yes</a>
-							</li>
-							<li class="m-button-group__item">
-								<a class="a-button a-button--secondary" href="claim.html">No</a>
-							</li>
-						</ul>
+						<div class="m-card m-card-notification m-card-notification--neutral notification" role="status">
+							<div class="m-card-content">
+								<div class="m-card-content__inner">
+									<p>
+										<a class="link" href="amrutha_index.html">
+											Aviva has detected a crash. Click here to assist you!
+										</a>
+									</p>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
-			<div class="footer-menu"></div>
 		</div>
 	</div>
 	<script async id="js-init" src="https://static.aviva.io/assets/themes-managed/v5.32.0/shared/js/init.js" integrity="sha384-/9AMxGK62Fz+uif9st1mzQoUnWiBfzEtYdXNJzZftlOmie8YjiKtH+pWMJjgE9pK" crossorigin="anonymous"></script>
