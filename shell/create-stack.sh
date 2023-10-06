@@ -16,7 +16,7 @@ export BEDROCK_LANGCHAIN_LAYER_ARN=$(aws lambda publish-layer-version \
     --layer-name bedrock-langchain \
     --description "Bedrock LangChain layer" \
     --license-info "MIT" \
-    --content S3Bucket=${S3_ARTIFACT_BUCKET_NAME},S3Key=agent/lambda-layers/bedrock-langchain.zip \
+    --content S3Bucket=${S3_ARTIFACT_BUCKET_NAME},S3Key=agent/lambda-layers/bedrock-langchain-nick.zip \
     --compatible-runtimes python3.9 \
     --query LayerVersionArn --output text)
 

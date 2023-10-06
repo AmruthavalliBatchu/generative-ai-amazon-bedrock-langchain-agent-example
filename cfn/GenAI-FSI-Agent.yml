@@ -141,6 +141,20 @@ Resources:
             - !Ref 'AWS::Partition'
             - ':iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
 
+  AgentHandlerBedrockAccess: 
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: !Sub ${AWS::StackName}-BedRockAccessPolicy
+      PolicyDocument:
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Resource: 'arn:aws:iam::195364414018:role/Crossaccountbedrock'
+        Version: 2012-10-17
+      Roles:
+        - !Ref AgentHandlerServiceRole
+
+
   AgentHandlerServiceRoleDefaultPolicy:
     Type: 'AWS::IAM::Policy'
     Properties:
