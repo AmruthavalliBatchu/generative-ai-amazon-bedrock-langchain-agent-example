@@ -82,7 +82,7 @@
 						<h3 class="a-heading a-heading--3 u-text--center">Would you like to progress with your claim?</h3>
 						<ul class="m-button-group">
 							<li class="m-button-group__item">
-							    <a class="a-button a-button--primary" onClick=openChatWindow(document, window.kommunicate)>Chat with Aviva claims handler</a>
+							    <a class="a-button a-button--primary" onclick='openChatWindow(document, window.kommunicate)'>Chat with Aviva claims handler</a>
 							</li>
 							<li class="m-button-group__item">
 								<a class="a-button a-button--secondary" href="help.html">Request call back for claim</a>
@@ -99,6 +99,7 @@
 	<script type="text/javascript">
 		window.kommunicate = window.kommunicate || {};
 		function openChatWindow(d, m) {
+			console.log("called chat");
 			var kommunicateSettings = {"appId":"3dc3abd95ef2d997c81ab0cb271df4285","popupWidget":true,"automaticChatOpenOnNavigation":true};
 	        var s = document.createElement("script"); s.type = "text/javascript"; s.async = true;
 	        s.src = "https://widget.kommunicate.io/v2/kommunicate.app";
