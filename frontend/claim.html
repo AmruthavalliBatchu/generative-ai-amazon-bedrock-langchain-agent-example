@@ -89,7 +89,8 @@
 							</li>
 						</ul>
 						<iframe
-						            style="border: none;"
+						            style="border: none;display: none"
+						            id="chatWindow"
 						            height="600px"
 						            width="400px"
 						            src="https://widget.kommunicate.io/chat?appId=3dc3abd95ef2d997c81ab0cb271df4285"
@@ -112,6 +113,7 @@
 		};
 		function openChatWindow(d, m) {
 			console.log("called chat");
+			document.getElementById("chatWindow").style.display = "block";
 	        var s = document.createElement("script"); s.type = "text/javascript"; s.async = true;
 	        s.src = "https://widget.kommunicate.io/v2/kommunicate.app";
 	        var h = document.getElementsByTagName("head")[0]; h.appendChild(s);
