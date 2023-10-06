@@ -88,6 +88,13 @@
 								<a class="a-button a-button--secondary" href="help.html">Request call back for claim</a>
 							</li>
 						</ul>
+						<iframe
+						            style="border: none;"
+						            height="600px"
+						            width="400px"
+						            src="https://widget.kommunicate.io/chat?appId=3dc3abd95ef2d997c81ab0cb271df4285"
+						            allow="microphone; geolocation;">
+						</iframe>
 					</div>
 				</div>
 			</div>
@@ -98,15 +105,19 @@
 	
 	<script type="text/javascript">
 		window.kommunicate = window.kommunicate || {};
+		var kommunicateSettings = {
+				"appId":"3dc3abd95ef2d997c81ab0cb271df4285",
+				"popupWidget":false,
+				"automaticChatOpenOnNavigation":false
+		};
 		function openChatWindow(d, m) {
 			console.log("called chat");
-			var kommunicateSettings = {"appId":"3dc3abd95ef2d997c81ab0cb271df4285","popupWidget":true,"automaticChatOpenOnNavigation":true};
 	        var s = document.createElement("script"); s.type = "text/javascript"; s.async = true;
 	        s.src = "https://widget.kommunicate.io/v2/kommunicate.app";
 	        var h = document.getElementsByTagName("head")[0]; h.appendChild(s);
-	        window.kommunicate = m; m._globals = kommunicateSettings;
+	        window.kommunicate = m; 
+	        m._globals = kommunicateSettings;
 		}
 	</script>
-	
 </body>
 </html>
