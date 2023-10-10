@@ -1002,8 +1002,10 @@ def dispatch(intent_request):
     intent_name = intent_request['sessionState']['intent']['name']
 
     if intent_name == 'VerifyIdentity':
-        return verify_identity(intent_request)
-    elif intent_name == 'LoanApplication':
+        # return verify_identity(intent_request)
+        intent_name = 'LoanApplication'
+
+    if intent_name == 'LoanApplication':
         print(f"picking up the intent name: {intent_name}")
         return claim_application(intent_request)
     # elif intent_name == 'LoanCalculator':
