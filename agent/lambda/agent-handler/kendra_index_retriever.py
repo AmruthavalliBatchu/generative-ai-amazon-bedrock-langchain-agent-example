@@ -31,10 +31,11 @@ class KendraIndexRetriever(BaseRetriever):
     
     def __init__(self, kendraindex, awsregion, k=3, return_source_documents=False):
         print("Initializing Kendra Index Retriever")
-        self.kendraindex = kendraindex
-        self.awsregion = awsregion
-        self.k = k
-        self.return_source_documents = return_source_documents
+        super().__init__(kendraindex=kendraindex, awsregion=awsregion, k=k, return_source_documents=return_source_documents)
+        # self.kendraindex = kendraindex
+        # self.awsregion = awsregion
+        # self.k = k
+        # self.return_source_documents = return_source_documents
         self.kclient = kendra_client(self.kendraindex, self.awsregion)
         
     def get_relevant_documents(self, query: str) -> List[Document]:

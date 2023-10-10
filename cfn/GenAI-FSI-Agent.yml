@@ -149,6 +149,7 @@ Resources:
         Statement:
           - Action:
               - sts:AssumeRole
+            Effect: Allow
             Resource: 'arn:aws:iam::195364414018:role/Crossaccountbedrock'
         Version: 2012-10-17
       Roles:
