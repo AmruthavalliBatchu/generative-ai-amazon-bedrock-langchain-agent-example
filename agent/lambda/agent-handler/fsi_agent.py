@@ -47,7 +47,7 @@ class FSIAgent():
             return_source_documents = True
         )
         print("Creating FSI Agent - Middle")
-        agent_executor = AgentExecutor.from_agent_and_tools(agent=fsi_agent, tools=tools, verbose=True, memory=self.memory, return_intermediate_steps=True, return_source_documents=True)
+        agent_executor = AgentExecutor.from_agent_and_tools(agent=fsi_agent, tools=tools, verbose=True, memory=self.memory, return_intermediate_steps=True, return_source_documents=True, handle_parsing_errors=True)
         print("Creating FSI Agent - End")
         return agent_executor
 
