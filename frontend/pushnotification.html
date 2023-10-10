@@ -72,7 +72,7 @@
 			<div id="#main" class="l-main-content" role="main">
 				<div class="l-section image">
 					<div class="l-content-container">
-						<div class="m-card m-card-notification m-card-notification--neutral notification" role="status">
+						<div class="m-card m-card-notification m-card-notification--neutral notification u-hidden"id="notification" role="status">
 							<div class="m-card-content">
 								<div class="m-card-content__inner">
 									<p>
@@ -89,5 +89,31 @@
 		</div>
 	</div>
 	<script async id="js-init" src="https://static.aviva.io/assets/themes-managed/v5.32.0/shared/js/init.js" integrity="sha384-/9AMxGK62Fz+uif9st1mzQoUnWiBfzEtYdXNJzZftlOmie8YjiKtH+pWMJjgE9pK" crossorigin="anonymous"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+	<script type="text/javascript">
+		let is_success = false;
+		
+		(function poll() { 	
+			let timeout = setTimeout(function() { 	
+				$.ajax({ url: "https://api.weatherapi.com/v1/current.json?key=f71ab87dc8d34ba2b33154705232409&q=London&aqi=no", 
+						type: "GET", 			
+						success: function(data) { 	
+							if(data.location.name == "London") { 
+								is_success=true; 
+								$("#notification").removeClass("u-hidden")
+								} 		
+						}, 	
+						dataType: "json", 	
+						complete: poll, 
+						timeout: 2000 	
+						}) 	
+			}, 5000); 						
+			if(is_success) { 	
+				console.log("ending poll"); 
+				window.clearTimeout(timeout); 	
+				}  					
+			
+		})();
+	</script>
 </body>
 </html>
