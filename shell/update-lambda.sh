@@ -5,12 +5,14 @@ cd agent/lambda/agent-handler
 ZIP_FILE="agent_deployment_package.zip"
 
 # S3 Bucket and key/path
-S3_BUCKET="avivabedrockapp-174671970284"
+# OLD_S3_BUCKET="avivabedrockapp-174671970284"
+S3_BUCKET="avivabedrockapp-719514420056"
 S3_KEY="agent/lambda/agent-handler/${ZIP_FILE}"
 S3_URI="s3://${S3_BUCKET}/${S3_KEY}"
 
 # Lambda ARN
-LAMBDA_ARN="arn:aws:lambda:us-east-1:174671970284:function:avivabedrockapp-GenAILexHandler"
+# OLD_LAMBDA_ARN="arn:aws:lambda:us-east-1:174671970284:function:avivabedrockapp-GenAILexHandler"
+LAMBDA_ARN="arn:aws:lambda:us-east-1:719514420056:function:avivabedrockapp-GenAILexHandler"
 
 # Step 1: Zip all Python files in the current directory
 echo "Zipping Python files into ${ZIP_FILE}..."

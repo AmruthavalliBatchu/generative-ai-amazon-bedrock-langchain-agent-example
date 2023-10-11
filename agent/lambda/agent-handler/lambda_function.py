@@ -20,6 +20,8 @@ from pypdf import PdfReader, PdfWriter
 import logging
 from typing import Optional
 
+from kendra_index_retriever import KendraIndexRetriever
+
 # from utils import bedrock, print_ww
 
 # Set up logging
@@ -171,6 +173,7 @@ def close(session_attributes, active_contexts, fulfillment_state, intent, messag
 
 
 def elicit_intent(intent_request, session_attributes, message):
+    print("is this even being triggered?")
     response = {
         'sessionState': {
             'dialogAction': {
@@ -180,7 +183,7 @@ def elicit_intent(intent_request, session_attributes, message):
         },
         'messages': [
             {
-                'contentType': 'PlainText', 
+                'contentType': 'PlainText',
                 'content': message
             },
             {
@@ -193,15 +196,16 @@ def elicit_intent(intent_request, session_attributes, message):
                         },
                         {
                             "text": "Ask GenAI",
-                            "value": "What kind of questions can FSI Agent answer?" # TODO: Change this to sometihng that works correctly. 
+                            "value": "How long is No Claim Discount for motor insurance valid for?"
                         }
                     ],
                     "title": "How can Aviva help you?"
                 }
-            }     
+            }
         ]
     }
 
+    print("Response within ELicit intent function is: ", response)
     return response
 
 
@@ -424,6 +428,11 @@ def validate_pin(intent_request, slots):
     username = try_ex(slots['UserName'])
     pin = try_ex(slots['Pin'])
 
+    username = 'Demo User'
+    pin = '1234'
+
+    print("Starting pin validation")
+
     if username is not None:
         if not isvalid_username(username):
             return build_validation_result(
@@ -456,6 +465,8 @@ def validate_pin(intent_request, slots):
             'Pin',
             message
         )
+    
+    print("Finsihing validation")
 
     return {'isValid': True}
 
@@ -468,8 +479,10 @@ def verify_identity(intent_request):
     2) Use of sessionAttributes {UserName} to pass information that can be used to guide conversation.
     """
     slots = intent_request['sessionState']['intent']['slots']
-    pin = try_ex(slots['Pin'])
-    username=try_ex(slots['UserName'])
+
+    print(f"Verifying identity and slots are: {slots}")
+    pin = "1234" #try_ex(slots['Pin'])
+    username = "Demo User" #try_ex(slots['UserName'])
 
     confirmation_status = intent_request['sessionState']['intent']['confirmationState']
     session_attributes = intent_request['sessionState'].get("sessionAttributes") or {}
@@ -492,7 +505,9 @@ def verify_identity(intent_request):
             validation_result['message']
         )
     else:
+        print("The else is happenin")
         if confirmation_status == 'None':
+            print("And confrimationstatus is?")
             # Query DDB for user information before offering intents
             plans_table = dynamodb.Table(user_accounts_table_name)
 
@@ -501,6 +516,7 @@ def verify_identity(intent_request):
                 response = plans_table.query(
                     KeyConditionExpression=Key('userName').eq(username)
                 )
+                print("Response is: ", response)
 
                 # TODO: Customize account readout based on account type
                 message = ""
@@ -514,9 +530,10 @@ def verify_identity(intent_request):
                     elif item['planName'] == 'Loan' or item['planName'] == 'loan':
                             message = "I see you have a Loan account with Octank Financial. Your account balance is ${:,} and your next payment \
                             amount of ${:,} is scheduled for {}.".format(item['unpaidPrincipal'], item['paymentAmount'], item['dueDate'])
-                return elicit_intent(intent_request, session_attributes, 
-                    'Thank you for confirming your username and PIN, {}. {}'.format(username, message)
-                    )
+                print("intent request", intent_request)
+                print("session attributes", session_attributes)
+
+                return elicit_intent(intent_request, session_attributes, 'Thank you for confirming your identity')
 
             except Exception as e:
                 print(e)
@@ -532,20 +549,11 @@ def validate_claim_application(intent_request, slots):
     """
     username = try_ex(slots['UserName'])
     veh_involved = try_ex(slots['VehInvolved'])
-    anyone_else = try_ex(slots['AnyoneElse'])
-    alcohol_drugs = try_ex(slots['AlcDrugs'])
-    how_many_others = try_ex(slots['AnyOthers'])
-
-
-    # loan_value = try_ex(slots['LoanValue'])
-    # monthly_income = try_ex(slots['MonthlyIncome'])
-    # work_history = try_ex(slots['WorkHistory'])
-    # credit_score = try_ex(slots['CreditScore'])
-    # housing_expense = try_ex(slots['HousingExpense'])
-    # debt_amount = try_ex(slots['DebtAmount'])
-    # down_payment = try_ex(slots['DownPayment'])
-    # coborrow = try_ex(slots['Coborrow'])
-    # closing_date = try_ex(slots['ClosingDate'])
+    exact_location = try_ex(slots['AnyoneElse'])
+    other_vehicles = try_ex(slots['AlcDrugs'])
+    incident_description = try_ex(slots['AnyOthers'])
+    any_witnesses = try_ex(slots['AnyWitness'])
+    anything_else = try_ex(slots['AnythingElse'])
 
     confirmation_status = intent_request['sessionState']['intent']['confirmationState']
     session_attributes = intent_request['sessionState'].get("sessionAttributes") or {}
@@ -573,7 +581,7 @@ def validate_claim_application(intent_request, slots):
     # TO DO: Mimic what is happening above with the try and then build slot. 
 
     if veh_involved is None: 
-        reply = "What was the registration plate of the car involved?"
+        reply = "Please confirm that this is your vehicle registration: NK11NK ?"
         return build_validation_result(False, 'VehInvolved', reply)
     else:
         try:
@@ -584,201 +592,81 @@ def validate_claim_application(intent_request, slots):
             return build_validation_result(
                 False,
                 'VehInvolved',
-                "What was the numberplate / registration plate of the car involved?"
+                "Please confirm that this is your vehicle registration: NK11NK ?"
             )
 
-    if anyone_else is None: 
-        reply = "Was anyone else involved in the crash? If so, was it a pedestrian, cyclist or vehicle?"
+    if exact_location is None: 
+        reply = "We have tracked the location of when the impact happened as 'Ipswich Road, Norwich'. Is this correct?"
         return build_validation_result(False, 'AnyoneElse', reply) 
     else:
         try:
             # any_else = intent_request['sessionState']['sessionAttributes']['AnyoneElse']
-            print(f"Anyone else?: {anyone_else}")
-            build_slot(intent_request, 'AnyoneElse', anyone_else)
+            print(f"Anyone else?: {exact_location}")
+            build_slot(intent_request, 'AnyoneElse', exact_location)
         except KeyError:
             return build_validation_result(
                 False,
                 'AnyoneElse',
-                "Was anyone else involved in the crash?  If so, was it a pedestrian, cyclist or vehicle?"
+                "We have tracked the location of when the impact happened as 'Ipswich Road, Norwich'. Is this correct?"
             )
 
-    if alcohol_drugs is None: 
-        reply = "Were you under the influence of alcohol or drugs?"
+    if other_vehicles is None: 
+        reply = "Were there any other vehicle involved in the incident? If so, please provide their registration, name and contact number."
         return build_validation_result(False, 'AlcDrugs', reply) 
     else:
         try:
             # alc_drugs = intent_request['sessionState']['sessionAttributes']['AlcDrugs']
-            print(f"Booze?: {alcohol_drugs}")
-            build_slot(intent_request, 'AlcDrugs', alcohol_drugs)
+            print(f"Other vehicles?: {other_vehicles}")
+            build_slot(intent_request, 'AlcDrugs', other_vehicles)
         except KeyError:
             return build_validation_result(
                 False,
                 'AlcDrugs',
-                "Were you under the influence of alcohol or drugs?"
+                "Were there any other vehicle involved in the incident? If so, please provide their registration, name and contact number."
             )
 
-    if how_many_others is None: 
-        reply = "How many other people were in the vehicle, including yourself?"
+    if incident_description is None: 
+        reply = "Please provide a description of the incident:"
         return build_validation_result(False, 'AnyOthers', reply) 
     else:
         try:
             # any_others = intent_request['sessionState']['sessionAttributes']['AnyOthers']
-            print(f"How many others: {how_many_others}")
-            build_slot(intent_request, 'AnyOthers', how_many_others)
+            print(f"Incident description: {incident_description}")
+            build_slot(intent_request, 'AnyOthers', incident_description)
         except KeyError:
             return build_validation_result(
                 False,
                 'AnyOthers',
-                "How many other people were in the vehicle, including yourself?"
+                "Please provide a description of the incident:"
             )
 
+    if any_witnesses is None: 
+        reply = "Were there any witnesses? If so, please provide the witness(es) name, contact number, and any additional information"
+        return build_validation_result(False, 'AnyWitness', reply) 
+    else:
+        try:
+            print(f"Any witnesses: {any_witnesses}")
+            build_slot(intent_request, 'AnyWitness', any_witnesses)
+        except KeyError:
+            return build_validation_result(
+                False,
+                'AnyWitness',
+                "Were there any witnesses? If so, please provide the witness(es) name, contact number, and any additional information"
+            )
 
-    # if loan_value is not None:
-    #     if not isvalid_zero_or_greater(loan_value):
-    #         return build_validation_result(False, 'LoanValue', 'Please enter a value greater than $0.')
-    #     else:
-    #         prompt = intent_request['inputTranscript']
-    #         message = invoke_fm(intent_request)
-    #         reply = message + " What is your desired loan amount?"
-
-    #         return build_validation_result(False, 'LoanValue', reply)
-    # else:
-    #     return build_validation_result(
-    #         False,
-    #         'LoanValue',
-    #         "What is your desired loan amount? In other words, how much are looking to borrow? If you are unsure, please use our Loan Calculator by simply responding 'Loan Calculator.'"
-    #     )
-
-    # if monthly_income is not None:
-    #     if not isvalid_zero_or_greater(monthly_income):
-    #         return build_validation_result(False, 'MonthlyIncome', 'Monthly income amount must be greater than $0. Please try again.')
-    #     else:
-    #         prompt = intent_request['inputTranscript']
-    #         message = invoke_fm(intent_request)
-    #         reply = message + " What is your monthly income?"
-
-    #         return build_validation_result(False, 'MonthlyIncome', reply)
-    # else:
-        # return build_validation_result(
-        #     False,
-        #     'MonthlyIncome',
-        #     "What is your monthly income?"
-        # )
-
-    # if work_history is not None:
-    #     if not isvalid_yes_or_no(work_history):
-    #         return build_validation_result(False, 'WorkHistory', "I am sorry; we did not understand that. Please answer 'Yes' or 'No'")
-    #     else:
-    #         prompt = intent_request['inputTranscript']
-    #         message = invoke_fm(intent_request)
-    #         reply = message + " Do you have a two-year continuous work history (Yes/No)?"
-
-    #         return build_validation_result(False, 'WorkHistory', reply)
-    # else:
-    #     return build_validation_result(
-    #         False,
-    #         'WorkHistory',
-    #         "Do you have a two-year continuous work history (Yes/No)?"
-    #     )
-
-    # if credit_score is not None:
-    #     if credit_score.isdigit():
-    #         if not isvalid_credit_score(credit_score):
-    #             return build_validation_result(False, 'CreditScore', 'Credit score entries must be between 300 and 850. Please enter a valid credit score.')
-    #     else:
-    #         prompt = intent_request['inputTranscript']
-    #         message = invoke_fm(intent_request)
-    #         reply = message + " What do you think your current credit score is?"
-
-    #         return build_validation_result(False, 'CreditScore', reply)
-    # else:
-    #     return build_validation_result(
-    #         False,
-    #         'CreditScore',
-    #         "What do you think your current credit score is?"
-    #     )
-
-    # if housing_expense is not None:
-    #     if not isvalid_zero_or_greater(housing_expense):
-    #         return build_validation_result(False, 'HousingExpense', 'Your housing expense must be a value greater than or equal to $0. Please try again.')
-    #     else:
-    #         prompt = intent_request['inputTranscript']
-    #         message = invoke_fm(intent_request)
-    #         reply = message + " How much are you currently paying for housing each month?"
-
-    #         return build_validation_result(False, 'HousingExpense', reply)
-    # else:
-    #     return build_validation_result(
-    #         False,
-    #         'HousingExpense',
-    #         "How much are you currently paying for housing each month?"
-    #     )
-
-    # if debt_amount is not None:
-    #     if not isvalid_zero_or_greater(debt_amount):
-    #         return build_validation_result(False, 'DebtAmount', 'Your debt amount must be a value greater than or equal to $0. Please try again.')
-    #     else:
-    #         prompt = intent_request['inputTranscript']
-    #         message = invoke_fm(intent_request)
-    #         reply = message + " What is your estimated credit card or student loan debt?"
-
-    #         return build_validation_result(False, 'DebtAmount', reply)
-    # else:
-    #     return build_validation_result(
-    #         False,
-    #         'DebtAmount',
-    #         "What is your estimated credit card or student loan debt? Please enter '0' if none."
-    #     )
-
-    # if down_payment is not None:
-    #     if not isvalid_zero_or_greater(down_payment):
-    #         return build_validation_result(False, 'DownPayment', 'Your estimate down payment must be a value greater than or equal to $0. Please try again.')
-    #     else:
-    #         prompt = intent_request['inputTranscript']
-    #         message = invoke_fm(intent_request)
-    #         reply = message + " What do you have saved for a down payment?"
-
-    #         return build_validation_result(False, 'DownPayment', reply)
-    # else:
-    #     return build_validation_result(
-    #         False,
-    #         'DownPayment',
-    #         "What do you have saved for a down payment?"
-    #     )
-
-    # if coborrow is not None:
-    #     if not isvalid_yes_or_no(coborrow):
-    #         return build_validation_result(False, 'Coborrow', "I am sorry; we did not understand that. Please answer 'Yes' or 'No'")
-    #     else:
-    #         prompt = intent_request['inputTranscript']
-    #         message = invoke_fm(intent_request)
-    #         reply = message + " Do you have a co-borrower (Yes/No)?"
-
-    #         return build_validation_result(False, 'Coborrow', reply)
-    # else:
-    #     return build_validation_result(
-    #         False,
-    #         'Coborrow',
-    #         "Do you have a co-borrower (Yes/No)?"
-    #     )
-
-    # if closing_date is not None:
-    #     if not isvalid_date(closing_date):
-    #         return build_validation_result(False, 'ClosingDate', 'I did not understand your closing date.  When would you like to close?')
-    #     if datetime.datetime.strptime(closing_date, '%Y-%m-%d').date() <= datetime.date.today():
-    #         return build_validation_result(False, 'ClosingDate', 'Closing dates must be scheduled at least one day in advance.  Please try a different date.')
-    #     else:
-    #         prompt = intent_request['inputTranscript']
-    #         message = invoke_fm(intent_request)
-    #         reply = message + " When are you looking to close?"
-
-    #         return build_validation_result(False, 'ClosingDate', reply)        
-    # else:
-        # return build_validation_result(
-        #     False,
-        #     'ClosingDate',
-        #     'When are you looking to close?'
-        # )
+    if anything_else is None: 
+        reply = "If there's anything else you would like to tell us, you can tell us here:"
+        return build_validation_result(False, 'AnythingElse', reply) 
+    else:
+        try:
+            print(f"Anything else: {anything_else}")
+            build_slot(intent_request, 'AnythingElse', anything_else)
+        except KeyError:
+            return build_validation_result(
+                False,
+                'AnythingElse',
+                "If there's anything else you would like to tell us, you can tell us here:"
+            )
 
     return {'isValid': True}
 
@@ -794,19 +682,11 @@ def claim_application(intent_request):
 
     username = try_ex(slots['UserName'])
     veh_involved = try_ex(slots['VehInvolved'])
-    anyone_else = try_ex(slots['AnyoneElse'])
-    alcohol_drugs = try_ex(slots['AlcDrugs'])
-    how_many_others = try_ex(slots['AnyOthers'])
-
-    # loan_value = try_ex(slots['LoanValue'])
-    # monthly_income = try_ex(slots['MonthlyIncome'])
-    # work_history = try_ex(slots['WorkHistory'])
-    # credit_score = try_ex(slots['CreditScore'])
-    # housing_expense = try_ex(slots['HousingExpense'])
-    # debt_amount = try_ex(slots['DebtAmount'])
-    # down_payment = try_ex(slots['DownPayment'])
-    # coborrow = try_ex(slots['Coborrow'])
-    # closing_date = try_ex(slots['ClosingDate'])
+    exact_location = try_ex(slots['AnyoneElse'])
+    other_vehicles = try_ex(slots['AlcDrugs'])
+    incident_description = try_ex(slots['AnyOthers'])
+    any_witnesses = try_ex(slots['AnyWitness'])
+    anything_else = try_ex(slots['AnythingElse'])
 
     confirmation_status = intent_request['sessionState']['intent']['confirmationState']
     session_attributes = intent_request['sessionState'].get("sessionAttributes") or {}
@@ -880,7 +760,7 @@ def claim_application(intent_request):
             intent['confirmationState'] = "Confirmed"
             intent['state'] = "Fulfilled"
 
-            s3_client.download_file('avivabedrockapp-719514420056', 'agent/assets/Aviva-Claim-Application.pdf', '/tmp/Aviva-Claim-Application.pdf')
+            s3_client.download_file('avivabedrockapp-719514420056', 'agent/assets/Aviva-Claim-Application-new.pdf', '/tmp/Aviva-Claim-Application.pdf')
 
             reader = PdfReader('/tmp/Aviva-Claim-Application.pdf')
             writer = PdfWriter()
@@ -890,15 +770,19 @@ def claim_application(intent_request):
 
             writer.append(reader)
 
-            firstname, lastname = username.split(' ', 1)
+            veh_involved = "NK11NK"
+            username = "John Smith"
+            exact_location = "Ipswich Road, Norwich, UK"
+
+            # firstname, lastname = username.split(' ', 1)
             writer.update_page_form_field_values(
                 writer.pages[0], {
-                    'fullName34[first]': firstname,
-                    'fullName34[last]': lastname,
-                    'monthlyNet': veh_involved,
-                    'creditScore': anyone_else,
-                    'requestedLoan': alcohol_drugs,
-                    'downPayment': how_many_others
+                    'fullName34[first]': veh_involved,
+                    'fullName34[last]': exact_location,
+                    'monthlyNet': other_vehicles,
+                    'creditScore': incident_description,
+                    'requestedLoan': any_witnesses,
+                    'downPayment': anything_else
                 }
             )
 
@@ -982,12 +866,28 @@ def genai_intent(intent_request):
     Sends user utterance to Foundational Model endpoint via 'invoke_fm' function.
     """
     session_attributes = intent_request['sessionState'].get("sessionAttributes") or {}
-    
+
     if intent_request['invocationSource'] == 'DialogCodeHook':
         output = invoke_fm(intent_request)
-
-        logger.info(f"genai_intent output: {output}")
         return elicit_intent(intent_request, session_attributes, output)
+    
+    # if intent_request['invocationSource'] == 'DialogCodeHook':
+    # #     # output = invoke_fm(intent_request)
+    # #     region = os.environ['AWS_REGION']
+    # #     kendra_index_id = os.environ['KENDRA_INDEX_ID']
+    # #     print("The intent_request is", intent_request)
+
+    # #     # input = intent_request['inputTranscript']
+    # #     # retriever = KendraIndexRetriever(
+    # #     #     kendraindex=kendra_index_id, 
+    # #     #     awsregion=region, 
+    # #     #     return_source_documents=True
+    # #     # )
+        
+    # #     # output = retriever.get_relevant_documents(query=input)
+
+    # #     logger.info(f"genai_intent output: {output}")
+    # #     return elicit_intent(intent_request, session_attributes, output)
 
 
 # --- Intents ---
@@ -1001,10 +901,15 @@ def dispatch(intent_request):
     username = slots['UserName'] if 'UserName' in slots else None
     intent_name = intent_request['sessionState']['intent']['name']
 
-    if intent_name == 'VerifyIdentity':
-        # return verify_identity(intent_request)
-        intent_name = 'LoanApplication'
+    # intent_name = 'LoanApplication'
 
+    if intent_name == 'VerifyIdentity':
+        intent_name = 'LoanApplication'
+        # return verify_identity(intent_request)
+        response = {'sessionState': {'dialogAction': {'type': 'ElicitIntent'}, 'sessionAttributes': {'UserName': 'Demo User'}}, 'messages': [{'contentType': 'PlainText', 'content': 'Thank you for confirming your identity'}, {'contentType': 'ImageResponseCard', 'imageResponseCard': {'buttons': [{'text': 'Claims Application', 'value': 'Claim Application'}, {'text': 'Ask GenAI', 'value': 'How long is No Claim Discount for motor insurance valid for?'}], 'title': 'How can Aviva help you?'}}]}
+        
+        return response
+        
     if intent_name == 'LoanApplication':
         print(f"picking up the intent name: {intent_name}")
         return claim_application(intent_request)
