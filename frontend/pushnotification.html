@@ -38,6 +38,28 @@
 			background-size: cover;
 			background-position: center;
 			height: 100vh;
+			animation: Shake 0.5s linear 3s; 
+		}
+		@keyframes Shake { 
+		    0% { 
+		        transform: rotate(5deg); 
+		    } 
+		  
+		    25% { 
+		        transform: rotate(-6deg); 
+		    } 
+		  
+		    50% { 
+		        transform: rotate(5deg); 
+		    } 
+		  
+		    75% { 
+		        transform: rotate(-6deg); 
+		    } 
+		  
+		    100% { 
+		        transform: rotate(5deg); 
+		    } 
 		}
 		.m-card.m-card-notification.notification {
 		    top: 40%;
