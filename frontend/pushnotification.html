@@ -94,7 +94,7 @@
 			<div id="#main" class="l-main-content" role="main">
 				<div class="l-section image">
 					<div class="l-content-container">
-						<div class="m-card m-card-notification m-card-notification--neutral notification u-hidden"id="notification" role="status">
+						<div class="m-card m-card-notification m-card-notification--neutral notification"id="notification" role="status">
 							<div class="m-card-content">
 								<div class="m-card-content__inner">
 									<p>
@@ -117,21 +117,19 @@
 		
 		(function poll() { 	
 			let timeout = setTimeout(function() { 	
-				$.ajax({ url: "https://api.weatherapi.com/v1/current.json?key=f71ab87dc8d34ba2b33154705232409&q=London&aqi=no", 
+				$.ajax({ url: "", //API to be called
 						type: "GET", 			
-						success: function(data) { 	
-							if(data.location.name == "London") { 
-								is_success=true; 
-								$("#notification").removeClass("u-hidden")
-								} 		
-						}, 	
+						success: function(data) { 
+							is_success=true; 
+							$("#notification").removeClass("u-hidden")
+						},
 						dataType: "json", 	
 						complete: poll, 
 						timeout: 2000 	
 						}) 	
 			}, 5000); 						
-			if(is_success) { 	
-				console.log("ending poll"); 
+			if(is_success) { 
+				
 				window.clearTimeout(timeout); 	
 				}  					
 			
